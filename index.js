@@ -1,8 +1,22 @@
 const fetch = require("node-fetch");
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
+const fs = require('fs');
 const config = require('./config.json');
 const Discord = require("discord.js");
+
+let lastAvailableProducts = [];
+
+// check if file exists
+if(fs.existsSync('./list.json')) {
+  console.log("FILE EXISTS");
+  const rawData = fs.readFileSync('./list.json')
+  lastAvailableProducts = JSON.parse(rawData);
+} else {
+  lastAvailableProducts = [];
+}
+
+
 
 const client = new Discord.Client();
 client.login(config.BOT_TOKEN);
