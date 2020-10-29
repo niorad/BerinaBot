@@ -25,7 +25,7 @@ async function getLastProductList() {
       const rawData = fs.readFileSync('./_results.json')
       return JSON.parse(rawData);
    } else {
-      await fs.writeFile('./_results.json');
+      fs.writeFileSync('./_results.json', '[]');
       return [];
    }
 }
@@ -47,8 +47,6 @@ function postNewProductsToDiscord(products) {
    const client = new Discord.Client();
    client.login(config.BOT_TOKEN);
 
-   let message = 'Halli! Sieht aus als gäbe es neue POPs!';
-
    const list = products.reduce((acc, val) => {
       const title = val.split('§§§')[0];
       const link = val.split('§§§')[1];
@@ -56,20 +54,24 @@ function postNewProductsToDiscord(products) {
    }, '');
 
    client.on("ready", () => {
-      client.channels.cache.get(config.CHANNEL_ID).send(`${message}${list}`).then(() => {
+      client.channels.cache.get(config.CHANNEL_ID).send(`${config.GREETING}${list}`).then(() => {
          client.destroy();
          return process.exit(1);
       });
-
    });
+}
 
+async function storeNewProductList(products) {
+   fs.writeFileSync('./_results.json', JSON.stringify(products));
 }
 
 getCurrentProducts().then(currentProducts => {
    getLastProductList().then(lastProductList => {
-      const newProducts = getNewProducts(currentProducts, lastProductList);
-      if(newProducts.length > 0) {
-         postNewProductsToDiscord(newProducts);
-      }
+      storeNewProductList(currentProducts).then(() => {
+         const newProducts = getNewProducts(currentProducts, lastProductList);
+         if(newProducts.length > 0) {
+            postNewProductsToDiscord(newProducts);
+         }
+      });
    });
 });
