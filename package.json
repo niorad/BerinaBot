@@ -1,13 +1,21 @@
 {
-  "name": "berina",
+  "name": "berinabot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Botty McBotface",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/niorad/BerinaBot.git"
+  },
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/niorad/BerinaBot/issues"
+  },
+  "homepage": "https://github.com/niorad/BerinaBot#readme",
   "dependencies": {
     "discord.js": "^12.4.1",
     "jsdom": "^16.4.0",
