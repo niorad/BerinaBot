@@ -4,17 +4,23 @@ const fs = require('fs');
 const { JSDOM } = jsdom;
 const config = require('./config.json');
 const Discord = require("discord.js");
-const { exit } = require("process");
 
 
 async function getCurrentProducts() {
-   const response = await fetch(config.DATA_SOURCE_URLS[0]);
-   const html = await response.text();
-   const dom = new JSDOM(html);
-   const products = Array.from(
-      dom.window.document.querySelectorAll(".product-tile")
-   );
-   return products.map((item) => {
+
+   let products = [];
+
+   for(let i = 0; i < config.DATA_SOURCE_URLS.length; i++) {
+      const response = await fetch(config.DATA_SOURCE_URLS[i]);
+      const html = await response.text();
+      const dom = new JSDOM(html);
+      products.push(Array.from(dom.window.document.querySelectorAll(".product-tile")));
+   }
+
+
+   console.log(products.flat());
+
+   return products.flat().map((item) => {
       return `${item.querySelector("[itemprop=name]").content}§§§${config.BASE_URL}${item.querySelector(".product-link").href}`;
    });
 }
@@ -34,7 +40,7 @@ async function getLastProductList() {
 // Get all new Items from current that are not in lastSaved
 function getNewProducts(current, lastSaved) {
    return current.reduce((acc, cur, index) => {
-      if(lastSaved.indexOf(cur) === -1 && index < 2) {
+      if(lastSaved.indexOf(cur) === -1 && index < 5) {
          return [...acc, cur];
       } else {
          return acc;
@@ -48,9 +54,9 @@ function postNewProductsToDiscord(products) {
    client.login(config.BOT_TOKEN);
 
    const list = products.reduce((acc, val) => {
-      const title = val.split('§§§')[0];
+      // const title = val.split('§§§')[0];
       const link = val.split('§§§')[1];
-      return `${acc}\n ${title}: ${link}`;
+      return `${acc}\n ${link}`;
    }, '');
 
    client.on("ready", () => {
@@ -66,9 +72,10 @@ async function storeNewProductList(products) {
 }
 
 getCurrentProducts().then(currentProducts => {
+   const dedupedCurrentProducts = [...new Set(currentProducts)];
    getLastProductList().then(lastProductList => {
-      storeNewProductList(currentProducts).then(() => {
-         const newProducts = getNewProducts(currentProducts, lastProductList);
+      storeNewProductList(dedupedCurrentProducts).then(() => {
+         const newProducts = getNewProducts(dedupedCurrentProducts, lastProductList);
          if(newProducts.length > 0) {
             postNewProductsToDiscord(newProducts);
          }
