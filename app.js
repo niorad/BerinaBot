@@ -42,12 +42,12 @@ async function getLastProductList() {
 function getNewProducts(current, lastSaved) {
 
    //trim to 6 per list
-   const trimmedProductLists = current.map((list) => list.slice(0,6));
-   const flattenedProducts = trimmedProductLists.flat(1);
-   const dedupedCurrentProducts = [...new Set(flattenedProducts)];
+   const trimmedNewProductLists = current.map((list) => list.slice(0,3));
+   const flattenedNewProducts = trimmedNewProductLists.flat(1);
+   const dedupedCurrentProducts = [...new Set(flattenedNewProducts)];
    const dedupedLastProducts = [...new Set(lastSaved)];
 
-   return dedupedCurrentProducts.reduce((acc, cur, index) => {
+   return dedupedCurrentProducts.reduce((acc, cur) => {
       if(dedupedLastProducts.indexOf(cur) === -1) {
          return [...acc, cur];
       } else {
